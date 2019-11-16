@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="1.6" method="upgrade" client="site">
+	<name>Freetobook Widget</name>
+	<author>freetobook.com</author>
+	<authorEmail>flex_header_nospam@andrehotzler.de</authorEmail>
+	<authorUrl>http://www.freetobook.com</authorUrl>
+	<creationDate>June 18 2011</creationDate>
+	<copyright>Copyright (C) 2011 freetobook.com All rights reserved.</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+	<version>1.0.0</version>
+	<description>
+		<![CDATA[
+	Put the freetobook booking widget on your Joomla! site. <a href="http://www.freetobook.com"><img src="http://www.freetobook.com/images/logo-mini.png" alt=""></a>	
+		]]>
+	</description>
+	<files>
+		<filename module="mod_freetobook_widget">mod_freetobook_widget.php</filename>
+		<filename module="mod_freetobook_widget">index.html</filename>
+		<filename module="mod_freetobook_widget">freetobook.png</filename>
+		<filename module="mod_freetobook_widget">helper.php</filename>
+		<filename module="mod_freetobook_widget">tmpl/index.html</filename>
+		<filename module="mod_freetobook_widget">tmpl/default.php</filename>
+
+		<filename module="mod_freetobook_widget">ButtonPicker/buttonpicker.php</filename>
+		<filename module="mod_freetobook_widget">ButtonPicker/buttonpicker.js</filename>
+		<filename module="mod_freetobook_widget">ButtonPicker/buttonpicker.css</filename>
+		
+		<filename module="mod_freetobook_widget">stock_buttons/style1/btn1.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style1/btn2.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style1/btn3.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style1/btn4.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style1/btn5.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style1/btn6.gif</filename>
+												
+		<filename module="mod_freetobook_widget">stock_buttons/style2/btn1.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style2/btn2.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style2/btn3.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style2/btn4.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style2/btn5.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style2/btn6.gif</filename>
+		
+		<filename module="mod_freetobook_widget">stock_buttons/style3/btn1.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style3/btn2.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style3/btn3.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style3/btn4.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style3/btn5.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style3/btn6.gif</filename>
+		
+		<filename module="mod_freetobook_widget">stock_buttons/style4/btn1.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style4/btn2.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style4/btn3.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style4/btn4.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style4/btn5.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style4/btn6.gif</filename>				
+
+		<filename module="mod_freetobook_widget">stock_buttons/style5/btn1.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style5/btn2.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style5/btn3.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style5/btn4.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style5/btn5.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style5/btn6.gif</filename>
+		
+		<filename module="mod_freetobook_widget">stock_buttons/style6/btn1.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style6/btn2.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style6/btn3.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style6/btn4.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style6/btn5.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style6/btn6.gif</filename>		
+
+		<filename module="mod_freetobook_widget">stock_buttons/style7/btn1.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style7/btn2.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style7/btn3.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style7/btn4.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style7/btn5.gif</filename>
+		<filename module="mod_freetobook_widget">stock_buttons/style7/btn6.gif</filename>
+
+
+	</files>
+	<languages>
+		<language tag="en-GB">en-GB.mod_freetobook_widget.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="style" type="hidden" />
+				<field name="widgetkey" type="text" size="95" default="" label="FTBWIDGETKEY" description="FTBWIDGETKEYDESC" />
+				<field name="widget-settings" type="buttonpicker" label="FTBWIDGETSTYLE" description="FTBWIDGETSTYLEDESC"
+				 addfieldpath="/modules/mod_freetobook_widget/ButtonPicker" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

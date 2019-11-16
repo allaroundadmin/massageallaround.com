@@ -1,0 +1,30 @@
+
+
+#jform_params_widgetkey-lbl, #jform_params_widget_settings-lbl
+{
+	font-weight:bold;
+}
+
+
+
+#ftb-button-list
+{
+	width:1100px;	
+}
+
+#ftb-button-list td
+{
+	text-align:center;
+	background-color:#eee;
+
+}
+
+#ftb-button-list td input
+{
+	float:none;
+	display:inline;	
+}
+#ftb-button-list td img
+{
+	float:none;	
+}

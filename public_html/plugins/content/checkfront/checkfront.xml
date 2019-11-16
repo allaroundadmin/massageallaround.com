@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.0" type="plugin" group="content" method="upgrade">
+	<updateservers>
+		<server type="extension" name="Checkfront Updates"
+			priority="2">http://www.checkfront.com/joomla-updates.xml</server>
+	</updateservers>
+	<name>Checkfront Booking Plugin</name>
+	<creationDate>March 13 2010</creationDate>
+	<author>Checkfront Inc</author>
+	<copyright>Copyright (C) 2008 - 2014 Checkfront Inc. All rights reserved.</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+	<authorEmail>support@checkfront.com</authorEmail>
+	<authorUrl>http://www.checkfront.com</authorUrl>
+	<version>3.0</version>
+	<description>
+		<![CDATA[
+		<div style="margin: 0 0 1em 2em; font: 12px sans-serif; float: right; width: 275px; box-shadow: 0 0 2px #ddd; border-radius: 6px; background-color: #fff; border: solid 1px #ddd; padding: 1em;">
+			<center><a href="http://www.checkfront.com/"><img src='//www.checkfront.com/images/logo/Checkfront-80.png' alt="Checkfront"></a></center>
+			<br />
+			<iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fcheckfront.bookings&amp;send=false&amp;layout=button_count&amp;width=250&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font&amp;height=21&amp;appId=132896805841" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:275px; margin-bottom: 10px; height:21px;" allowTransparency="true"></iframe>
+			<!-- Place this tag in your head or just before your close body tag -->
+			<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+			<!-- Place this tag where you want the +1 button to render -->
+			<div class="g-plusone" style="width:275px;" data-size="small" data-annotation="inline" data-href="http://www.checkfront.com/"></div>
+			<br />
+			<br />
+			<a href="http://twitter.com/Checkfront" style="background: url('https://www.checkfront.com/images/twitter.png') left center no-repeat; padding: 5px 5px 5px 20px" target="_blank">Follow us on Twitter</a><br /><br />
+			<a href="http://www.checkfront.com/support/" style="background: url('https://www.checkfront.com/images/brand/Checkfront-Icon-16.png') left center no-repeat; padding: 5px 5px 5px 20px;" target="_blank">Support Library</a><br /><br />
+			<a href="https://github.com/Checkfront/Joomla-Plugin" style="background: url('https://github.com/favicon.ico') left center no-repeat; background-size: 16px; padding: 5px 5px 5px 20px;" target="_blank">Fork us on Github</a><br /><br />
+			<a href="http://www.checkfront.com/joomla" style="background: url('http://www.joomla.org/templates/joomla12/favicon.ico') left center no-repeat; background-size: 16px; padding: 5px 5px 5px 20px;" target="_blank">Checkfront Joomla Setup Guide</a>
+		</div>		
+		
+		
+		Checkfront is an online Availability, Reservation and Booking System. This plugin integrates a real time booking engine into your Joomla site. You get the robust publishing capabilities of Joomla combined with the power and security of the Checkfront back-office app.
+		<br />
+		<br />
+		To get started, create and configure <a href="https://www.checkfront.com/start?src=joomla" target="_blank">your Checkfront account</a>.
+		<br />
+		<br />
+		To start booking, save your <strong>Checkfront URL</strong> (eg. myaccount.checkfront.com) under the "Basic Options" tab above, then copy and paste the shortcode generated below into a page:
+		<br />
+		<br />
+		<button class="btn btn-large" rel="checkfront" onclick="if (document.getElementById('jform_params_CF_url').value) Joomla.popupWindow('https://' + document.getElementById('jform_params_CF_url').value.replace(/.*?:\/\//g, '') + '/manage/extend/integrate/droplet/?src=joomla', 'Checkfront', 1150, 600, 1);return false" ><span class="icon-out-2"></span>&nbsp;Shortcode Generator</button>
+		&nbsp;Click to open the shortcode generator.
+		<br />
+		<br />
+		<br />For more informatioin and setup help see:
+		<a href='http://www.checkfront.com/joomla'>www.checkfront.com/joomla</a>
+		]]>
+	</description>
+	<files>
+		<filename plugin="checkfront">checkfront.php</filename>
+		<filename>pipe.html</filename>
+		<filename>CheckfrontWidget.php</filename>
+		<folder>language</folder>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+			            <field name="CF_url" type="text"
+							default=""
+							description="Your Checkfront URL, EG: demo.checkfront.com"
+							label="PLG_CONTENT_CHECKFRONT_URL_LBL"
+							>
+						</field>
+			</fieldset>
+		</fields>
+	</config>
+</extension>
