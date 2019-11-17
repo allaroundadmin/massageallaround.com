@@ -1,0 +1,17 @@
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+	new file:   autobackup.log
+	modified:   mysql_backup/i1100450_jos1.sql
+	modified:   public_html/logs/error.php
+
+[master f1b7379] 20191117202025
+ 3 files changed, 19 insertions(+), 3 deletions(-)
+ create mode 100644 autobackup.log
+To github.com:allaroundadmin/massageallaround.com.git
+   cd1d5c3..f1b7379  master -> master
+Branch 'master' set up to track remote branch 'master' from 'origin'.
+/home/allaroundadmin
