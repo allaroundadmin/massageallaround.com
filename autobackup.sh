@@ -11,6 +11,8 @@ _NOW_=$(date +%Y%m%d%H%M%S)
 cd /home/allaroundadmin/
 
 mysqldump 'i1100450_jos1' > mysql_backup/i1100450_jos1.sql
+# option -c to keep original file
+gzip -c mysql_backup/i1100450_jos1.sql > mysql_backup/i1100450_jos1.sql.gz
 
 git add .
 git status
