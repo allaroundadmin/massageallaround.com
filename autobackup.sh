@@ -1,5 +1,11 @@
 #!/bin/bash
 
+date
+
+# TZ
+TZ='Australia/Adelaide'; export TZ
+date
+
 _NOW_=$(date +%Y%m%d%H%M%S)
 
 cd /home/allaroundadmin/
