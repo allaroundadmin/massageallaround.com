@@ -2,3 +2,11 @@
 [11-Jan-2015 09:25:02 UTC] PHP Fatal error:  Class 'JError' not found in /home/allaroundadmin/public_html/administrator/includes/framework.php on line 36
 [11-Jan-2015 09:25:07 UTC] PHP Fatal error:  Class 'JError' not found in /home/allaroundadmin/public_html/administrator/includes/framework.php on line 36
 [11-Jan-2015 09:25:17 UTC] PHP Fatal error:  Class 'JError' not found in /home/allaroundadmin/public_html/administrator/includes/framework.php on line 36
+[13-Jan-2020 13:13:50 UTC] PHP Strict Standards:  Only variables should be assigned by reference in /home/allaroundadmin/public_html/plugins/system/icemegamenu/icemegamenu/libs/element/icemodules.php on line 31
+[13-Jan-2020 13:13:50 UTC] PHP Strict Standards:  Only variables should be assigned by reference in /home/allaroundadmin/public_html/plugins/system/icemegamenu/icemegamenu/libs/element/icepositions.php on line 44
+[13-Jan-2020 13:22:03 UTC] PHP Strict Standards:  Only variables should be assigned by reference in /home/allaroundadmin/public_html/plugins/system/icemegamenu/icemegamenu/libs/element/icemodules.php on line 31
+[13-Jan-2020 13:22:03 UTC] PHP Strict Standards:  Only variables should be assigned by reference in /home/allaroundadmin/public_html/plugins/system/icemegamenu/icemegamenu/libs/element/icepositions.php on line 44
+[13-Jan-2020 13:22:25 UTC] PHP Strict Standards:  Only variables should be assigned by reference in /home/allaroundadmin/public_html/plugins/system/icemegamenu/icemegamenu/libs/element/icemodules.php on line 31
+[13-Jan-2020 13:22:25 UTC] PHP Strict Standards:  Only variables should be assigned by reference in /home/allaroundadmin/public_html/plugins/system/icemegamenu/icemegamenu/libs/element/icepositions.php on line 44
+[13-Jan-2020 13:24:48 UTC] PHP Strict Standards:  Only variables should be assigned by reference in /home/allaroundadmin/public_html/plugins/system/icemegamenu/icemegamenu/libs/element/icemodules.php on line 31
+[13-Jan-2020 13:24:48 UTC] PHP Strict Standards:  Only variables should be assigned by reference in /home/allaroundadmin/public_html/plugins/system/icemegamenu/icemegamenu/libs/element/icepositions.php on line 44

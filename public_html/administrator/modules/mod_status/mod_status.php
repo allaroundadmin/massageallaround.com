@@ -3,20 +3,20 @@
  * @package     Joomla.Administrator
  * @subpackage  mod_status
  *
- * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2016 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 defined('_JEXEC') or die;
 
-$config	= JFactory::getConfig();
+$config = JFactory::getConfig();
 $user   = JFactory::getUser();
 $db     = JFactory::getDbo();
 $lang   = JFactory::getLanguage();
 $input  = JFactory::getApplication()->input;
 
 // Get the number of unread messages in your inbox.
-$query	= $db->getQuery(true)
+$query = $db->getQuery(true)
 	->select('COUNT(*)')
 	->from('#__messages')
 	->where('state = 0 AND user_id_to = ' . (int) $user->get('id'));
@@ -24,7 +24,7 @@ $query	= $db->getQuery(true)
 $db->setQuery($query);
 $unread = (int) $db->loadResult();
 
-// Get the number of back-end logged in users.
+// Get the number of backend logged in users.
 $query->clear()
 	->select('COUNT(session_id)')
 	->from('#__session')

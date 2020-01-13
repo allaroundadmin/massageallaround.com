@@ -3,15 +3,18 @@
  * @package     Joomla.Administrator
  * @subpackage  com_contact
  *
- * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2016 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 defined('_JEXEC') or die;
 
+use Joomla\Registry\Registry;
+
 /**
- * @package     Joomla.Administrator
- * @subpackage  com_contact
+ * Contact Table class.
+ *
+ * @since  1.0
  */
 class ContactTableContact extends JTable
 {
@@ -39,9 +42,9 @@ class ContactTableContact extends JTable
 	}
 
 	/**
-	 * Stores a contact
+	 * Stores a contact.
 	 *
-	 * @param   boolean  True to update fields even if they are null.
+	 * @param   boolean  $updateNulls  True to update fields even if they are null.
 	 *
 	 * @return  boolean  True on success, false on failure.
 	 *
@@ -52,19 +55,20 @@ class ContactTableContact extends JTable
 		// Transform the params field
 		if (is_array($this->params))
 		{
-			$registry = new JRegistry;
+			$registry = new Registry;
 			$registry->loadArray($this->params);
 			$this->params = (string) $registry;
 		}
 
-		$date	= JFactory::getDate();
-		$user	= JFactory::getUser();
+		$date   = JFactory::getDate()->toSql();
+		$userId = JFactory::getUser()->id;
+
+		$this->modified = $date;
 
 		if ($this->id)
 		{
 			// Existing item
-			$this->modified		= $date->toSql();
-			$this->modified_by	= $user->get('id');
+			$this->modified_by = $userId;
 		}
 		else
 		{
@@ -72,11 +76,12 @@ class ContactTableContact extends JTable
 			// so we don't touch either of these if they are set.
 			if (!(int) $this->created)
 			{
-				$this->created = $date->toSql();
+				$this->created = $date;
 			}
+
 			if (empty($this->created_by))
 			{
-				$this->created_by = $user->get('id');
+				$this->created_by = $userId;
 			}
 		}
 
@@ -106,6 +111,7 @@ class ContactTableContact extends JTable
 
 		// Verify that the alias is unique
 		$table = JTable::getInstance('Contact', 'ContactTable');
+
 		if ($table->load(array('alias' => $this->alias, 'catid' => $this->catid)) && ($table->id != $this->id || $this->id == 0))
 		{
 			$this->setError(JText::_('COM_CONTACT_ERROR_UNIQUE_ALIAS'));
@@ -121,21 +127,21 @@ class ContactTableContact extends JTable
 	 *
 	 * @return  boolean  True on success, false on failure
 	 *
-	 * @see JTable::check
-	 * @since 1.5
+	 * @see     JTable::check
+	 * @since   1.5
 	 */
 	public function check()
 	{
 		$this->default_con = (int) $this->default_con;
 
-		if (JFilterInput::checkAttribute(array ('href', $this->webpage)))
+		if (JFilterInput::checkAttribute(array('href', $this->webpage)))
 		{
 			$this->setError(JText::_('COM_CONTACT_WARNING_PROVIDE_VALID_URL'));
 
 			return false;
 		}
 
-		/** check for valid name */
+		// Check for valid name
 		if (trim($this->name) == '')
 		{
 			$this->setError(JText::_('COM_CONTACT_WARNING_PROVIDE_VALID_NAME'));
@@ -146,12 +152,18 @@ class ContactTableContact extends JTable
 		// Generate a valid alias
 		$this->generateAlias();
 
-		/** check for valid category */
+		// Check for valid category
 		if (trim($this->catid) == '')
 		{
 			$this->setError(JText::_('COM_CONTACT_WARNING_CATEGORY'));
 
 			return false;
+		}
+
+		// Sanity check for user_id
+		if (!($this->user_id))
+		{
+			$this->user_id = 0;
 		}
 
 		// Check the publish down date is not earlier than publish up.
@@ -162,23 +174,34 @@ class ContactTableContact extends JTable
 			return false;
 		}
 
-		// Clean up keywords -- eliminate extra spaces between phrases
-		// and cr (\r) and lf (\n) characters from string
+		/*
+		 * Clean up keywords -- eliminate extra spaces between phrases
+		 * and cr (\r) and lf (\n) characters from string.
+		 * Only process if not empty.
+		 */
 		if (!empty($this->metakey))
 		{
-			// Only process if not empty
-			$bad_characters = array("\n", "\r", "\"", "<", ">"); // array of characters to remove
-			$after_clean = JString::str_ireplace($bad_characters, "", $this->metakey); // remove bad characters
-			$keys = explode(',', $after_clean); // create array using commas as delimiter
+			// Array of characters to remove.
+			$bad_characters = array("\n", "\r", "\"", "<", ">");
+
+			// Remove bad characters.
+			$after_clean = JString::str_ireplace($bad_characters, "", $this->metakey);
+
+			// Create array using commas as delimiter.
+			$keys = explode(',', $after_clean);
 			$clean_keys = array();
 
-			foreach($keys as $key)
+			foreach ($keys as $key)
 			{
-				if (trim($key)) {  // ignore blank keywords
+				// Ignore blank keywords.
+				if (trim($key))
+				{
 					$clean_keys[] = trim($key);
 				}
 			}
-			$this->metakey = implode(", ", $clean_keys); // put array back together delimited by ", "
+
+			// Put array back together delimited by ", "
+			$this->metakey = implode(", ", $clean_keys);
 		}
 
 		// Clean up description -- eliminate quotes and <> brackets
@@ -205,7 +228,7 @@ class ContactTableContact extends JTable
 			$this->alias = $this->name;
 		}
 
-		$this->alias = JApplication::stringURLSafe($this->alias);
+		$this->alias = JApplicationHelper::stringURLSafe($this->alias, $this->language);
 
 		if (trim(str_replace('-', '', $this->alias)) == '')
 		{

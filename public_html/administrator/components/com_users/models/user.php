@@ -3,18 +3,19 @@
  * @package     Joomla.Administrator
  * @subpackage  com_users
  *
- * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2016 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 defined('_JEXEC') or die;
 
+use Joomla\Registry\Registry;
+use Joomla\Utilities\ArrayHelper;
+
 /**
  * User model.
  *
- * @package     Joomla.Administrator
- * @subpackage  com_users
- * @since       1.6
+ * @since  1.6
  */
 class UsersModelUser extends JModelAdmin
 {
@@ -27,13 +28,17 @@ class UsersModelUser extends JModelAdmin
 	 */
 	public function __construct($config = array())
 	{
-		parent::__construct($config);
+		$config = array_merge(
+			array(
+				'event_after_delete'  => 'onUserAfterDelete',
+				'event_after_save'    => 'onUserAfterSave',
+				'event_before_delete' => 'onUserBeforeDelete',
+				'event_before_save'   => 'onUserBeforeSave',
+				'events_map'          => array('save' => 'user', 'delete' => 'user', 'validate' => 'user')
+			), $config
+		);
 
-		// Load the Joomla! RAD layer
-		if (!defined('FOF_INCLUDED'))
-		{
-			include_once JPATH_LIBRARIES . '/fof/include.php';
-		}
+		parent::__construct($config);
 	}
 
 	/**
@@ -46,7 +51,7 @@ class UsersModelUser extends JModelAdmin
 	 * @return  JTable  A database object
 	 *
 	 * @since   1.6
-	*/
+	 */
 	public function getTable($type = 'User', $prefix = 'JTable', $config = array())
 	{
 		$table = JTable::getInstance($type, $prefix, $config);
@@ -67,15 +72,20 @@ class UsersModelUser extends JModelAdmin
 	{
 		$result = parent::getItem($pk);
 
-		$result->tags = new JHelperTags;
-		$result->tags->getTagIds($result->id, 'com_users.user');
+		$context = 'com_users.user';
 
-		// Get the dispatcher and load the users plugins.
-		$dispatcher	= JEventDispatcher::getInstance();
+		$result->tags = new JHelperTags;
+		$result->tags->getTagIds($result->id, $context);
+
+		// Get the dispatcher and load the content plugins.
+		$dispatcher = JEventDispatcher::getInstance();
+		JPluginHelper::importPlugin('content');
+
+		// Load the user plugins for backward compatibility (v3.3.3 and earlier).
 		JPluginHelper::importPlugin('user');
 
 		// Trigger the data preparation event.
-		$dispatcher->trigger('onContentPrepareData', array('com_users.user', $result));
+		$dispatcher->trigger('onContentPrepareData', array($context, $result));
 
 		return $result;
 	}
@@ -93,7 +103,7 @@ class UsersModelUser extends JModelAdmin
 	public function getForm($data = array(), $loadData = true)
 	{
 		$plugin = JPluginHelper::getPlugin('user', 'joomla');
-		$pluginParams = new JRegistry($plugin->params);
+		$pluginParams = new Registry($plugin->params);
 
 		// Get the form.
 		$form = $this->loadForm('com_users.user', 'user', array('control' => 'jform', 'load_data' => $loadData));
@@ -117,6 +127,12 @@ class UsersModelUser extends JModelAdmin
 		{
 			$form->setFieldAttribute('password', 'required', 'true');
 			$form->setFieldAttribute('password2', 'required', 'true');
+		}
+
+		// When multilanguage is set, a user's default site language should also be a Content Language
+		if (JLanguageMultilang::isEnabled())
+		{
+			$form->setFieldAttribute('language', 'type', 'frontend_language', 'params');
 		}
 
 		// The user should not be able to set the requireReset value on their own account
@@ -184,6 +200,19 @@ class UsersModelUser extends JModelAdmin
 		$user = JUser::getInstance($pk);
 
 		$my = JFactory::getUser();
+		$iAmSuperAdmin = $my->authorise('core.admin');
+
+		// User cannot modify own user groups
+		if ((int) $user->id == (int) $my->id && !$iAmSuperAdmin)
+		{
+			if ($data['groups'] != null)
+			{
+				// Form was probably tampered with
+				JFactory::getApplication()->enqueueMessage(JText::_('COM_USERS_USERS_ERROR_CANNOT_EDIT_OWN_GROUP'), 'warning');
+
+				$data['groups'] = null;
+			}
+		}
 
 		if ($data['block'] && $pk == $my->id && !$my->block)
 		{
@@ -193,8 +222,6 @@ class UsersModelUser extends JModelAdmin
 		}
 
 		// Make sure that we are not removing ourself from Super Admin group
-		$iAmSuperAdmin = $my->authorise('core.admin');
-
 		if ($iAmSuperAdmin && $my->get('id') == $pk)
 		{
 			// Check that at least one of our new groups is Super Admin
@@ -304,8 +331,7 @@ class UsersModelUser extends JModelAdmin
 		// Check if I am a Super Admin
 		$iAmSuperAdmin = $user->authorise('core.admin');
 
-		// Trigger the onUserBeforeSave event.
-		JPluginHelper::importPlugin('user');
+		JPluginHelper::importPlugin($this->events_map['delete']);
 		$dispatcher = JEventDispatcher::getInstance();
 
 		if (in_array($user->id, $pks))
@@ -331,8 +357,8 @@ class UsersModelUser extends JModelAdmin
 					// Get users data for the users to delete.
 					$user_to_delete = JFactory::getUser($pk);
 
-					// Fire the onUserBeforeDelete event.
-					$dispatcher->trigger('onUserBeforeDelete', array($table->getProperties()));
+					// Fire the before delete event.
+					$dispatcher->trigger($this->event_before_delete, array($table->getProperties()));
 
 					if (!$table->delete($pk))
 					{
@@ -342,8 +368,8 @@ class UsersModelUser extends JModelAdmin
 					}
 					else
 					{
-						// Trigger the onUserAfterDelete event.
-						$dispatcher->trigger('onUserAfterDelete', array($user_to_delete->getProperties(), true, $this->getError()));
+						// Trigger the after delete event.
+						$dispatcher->trigger($this->event_after_delete, array($user_to_delete->getProperties(), true, $this->getError()));
 					}
 				}
 				else
@@ -385,7 +411,7 @@ class UsersModelUser extends JModelAdmin
 		$table         = $this->getTable();
 		$pks           = (array) $pks;
 
-		JPluginHelper::importPlugin('user');
+		JPluginHelper::importPlugin($this->events_map['save']);
 
 		// Access checks.
 		foreach ($pks as $i => $pk)
@@ -436,8 +462,8 @@ class UsersModelUser extends JModelAdmin
 							return false;
 						}
 
-						// Trigger the onUserBeforeSave event.
-						$result = $dispatcher->trigger('onUserBeforeSave', array($old, false, $table->getProperties()));
+						// Trigger the before save event.
+						$result = $dispatcher->trigger($this->event_before_save, array($old, false, $table->getProperties()));
 
 						if (in_array(false, $result, true))
 						{
@@ -453,8 +479,8 @@ class UsersModelUser extends JModelAdmin
 							return false;
 						}
 
-						// Trigger the onAftereStoreUser event
-						$dispatcher->trigger('onUserAfterSave', array($table->getProperties(), false, true, null));
+						// Trigger the after save event
+						$dispatcher->trigger($this->event_after_save, array($table->getProperties(), false, true, null));
 					}
 					catch (Exception $e)
 					{
@@ -492,23 +518,23 @@ class UsersModelUser extends JModelAdmin
 	 */
 	public function activate(&$pks)
 	{
-		$dispatcher	= JEventDispatcher::getInstance();
-		$user		= JFactory::getUser();
+		$dispatcher = JEventDispatcher::getInstance();
+		$user       = JFactory::getUser();
 
 		// Check if I am a Super Admin
 		$iAmSuperAdmin = $user->authorise('core.admin');
 		$table         = $this->getTable();
 		$pks           = (array) $pks;
 
-		JPluginHelper::importPlugin('user');
+		JPluginHelper::importPlugin($this->events_map['save']);
 
 		// Access checks.
 		foreach ($pks as $i => $pk)
 		{
 			if ($table->load($pk))
 			{
-				$old	= $table->getProperties();
-				$allow	= $user->authorise('core.edit.state', 'com_users');
+				$old   = $table->getProperties();
+				$allow = $user->authorise('core.edit.state', 'com_users');
 
 				// Don't allow non-super-admin to delete a super admin
 				$allow = (!$iAmSuperAdmin && JAccess::check($pk, 'core.admin')) ? false : $allow;
@@ -520,8 +546,8 @@ class UsersModelUser extends JModelAdmin
 				}
 				elseif ($allow)
 				{
-					$table->block		= 0;
-					$table->activation	= '';
+					$table->block      = 0;
+					$table->activation = '';
 
 					// Allow an exception to be thrown.
 					try
@@ -533,8 +559,8 @@ class UsersModelUser extends JModelAdmin
 							return false;
 						}
 
-						// Trigger the onUserBeforeSave event.
-						$result = $dispatcher->trigger('onUserBeforeSave', array($old, false, $table->getProperties()));
+						// Trigger the before save event.
+						$result = $dispatcher->trigger($this->event_before_save, array($old, false, $table->getProperties()));
 
 						if (in_array(false, $result, true))
 						{
@@ -550,8 +576,8 @@ class UsersModelUser extends JModelAdmin
 							return false;
 						}
 
-						// Fire the onAftereStoreUser event
-						$dispatcher->trigger('onUserAfterSave', array($table->getProperties(), false, true, null));
+						// Fire the after save event
+						$dispatcher->trigger($this->event_after_save, array($table->getProperties(), false, true, null));
 					}
 					catch (Exception $e)
 					{
@@ -651,6 +677,19 @@ class UsersModelUser extends JModelAdmin
 	 */
 	public function batchReset($user_ids, $action)
 	{
+		$user_ids = ArrayHelper::toInteger($user_ids);
+
+		// Check if I am a Super Admin
+		$iAmSuperAdmin = JFactory::getUser()->authorise('core.admin');
+
+		// Non-super super user cannot work with super-admin user.
+		if (!$iAmSuperAdmin && JUserHelper::checkSuperUserInUsers($user_ids))
+		{
+			$this->setError(JText::_('COM_USERS_ERROR_CANNOT_BATCH_SUPERUSER'));
+
+			return false;
+		}
+
 		// Set the action to perform
 		if ($action === 'yes')
 		{
@@ -664,10 +703,15 @@ class UsersModelUser extends JModelAdmin
 		// Prune out the current user if they are in the supplied user ID array
 		$user_ids = array_diff($user_ids, array(JFactory::getUser()->id));
 
+		if (empty($user_ids))
+		{
+			$this->setError(JText::_('COM_USERS_USERS_ERROR_CANNOT_REQUIRERESET_SELF'));
+
+			return false;
+		}
+
 		// Get the DB object
 		$db = $this->getDbo();
-
-		JArrayHelper::toInteger($user_ids);
 
 		$query = $db->getQuery(true);
 
@@ -705,18 +749,29 @@ class UsersModelUser extends JModelAdmin
 	 */
 	public function batchUser($group_id, $user_ids, $action)
 	{
-		// Get the DB object
-		$db = $this->getDbo();
-
 		JArrayHelper::toInteger($user_ids);
 
-		// Non-super admin cannot work with super-admin group
-		if ((!JFactory::getUser()->get('isRoot') && JAccess::checkGroup($group_id, 'core.admin')) || $group_id < 1)
+		// Check if I am a Super Admin
+		$iAmSuperAdmin = JFactory::getUser()->authorise('core.admin');
+
+		// Non-super super user cannot work with super-admin user.
+		if (!$iAmSuperAdmin && JUserHelper::checkSuperUserInUsers($user_ids))
+		{
+			$this->setError(JText::_('COM_USERS_ERROR_CANNOT_BATCH_SUPERUSER'));
+
+			return false;
+		}
+
+		// Non-super admin cannot work with super-admin group.
+		if ((!$iAmSuperAdmin && JAccess::checkGroup($group_id, 'core.admin')) || $group_id < 1)
 		{
 			$this->setError(JText::_('COM_USERS_ERROR_INVALID_GROUP'));
 
 			return false;
 		}
+
+		// Get the DB object
+		$db = $this->getDbo();
 
 		switch ($action)
 		{
@@ -857,9 +912,14 @@ class UsersModelUser extends JModelAdmin
 
 		if (empty($userId))
 		{
-			$result = array();
+			$result   = array();
+			$form     = $this->getForm();
+			$groupIDs = array();
 
-			$groupsIDs = $this->getForm()->getValue('groups');
+			if ($form)
+			{
+				$groupsIDs = $form->getValue('groups');
+			}
 
 			if (!empty($groupsIDs))
 			{
@@ -923,15 +983,50 @@ class UsersModelUser extends JModelAdmin
 		}
 
 		// Get the encrypted data
-		list($method, $encryptedConfig) = explode(':', $item->otpKey, 2);
+		list($method, $config) = explode(':', $item->otpKey, 2);
 		$encryptedOtep = $item->otep;
 
-		// Create an encryptor class
+		// Get the secret key, yes the thing that is saved in the configuration file
 		$key = $this->getOtpConfigEncryptionKey();
+
+		if (strpos($config, '{') === false)
+		{
+			$openssl         = new FOFEncryptAes($key, 256);
+			$mcrypt          = new FOFEncryptAes($key, 256, 'cbc', null, 'mcrypt');
+
+			$decryptedConfig = $mcrypt->decryptString($config);
+
+			if (strpos($decryptedConfig, '{') !== false)
+			{
+				// Data encrypted with mcrypt
+				$decryptedOtep = $mcrypt->decryptString($encryptedOtep);
+				$encryptedOtep = $openssl->encryptString($decryptedOtep);
+			}
+			else
+			{
+				// Config data seems to be save encrypted, this can happen with 3.6.3 and openssl, lets get the data
+				$decryptedConfig = $openssl->decryptString($config);
+			}
+
+			$otpKey = $method . ':' . $decryptedConfig;
+
+			$query = $db->getQuery(true)
+				->update($db->qn('#__users'))
+				->set($db->qn('otep') . '=' . $db->q($encryptedOtep))
+				->set($db->qn('otpKey') . '=' . $db->q($otpKey))
+				->where($db->qn('id') . ' = ' . $db->q($user_id));
+			$db->setQuery($query);
+			$db->execute();
+		}
+		else
+		{
+			$decryptedConfig = $config;
+		}
+
+		// Create an encryptor class
 		$aes = new FOFEncryptAes($key, 256);
 
 		// Decrypt the data
-		$decryptedConfig = $aes->decryptString($encryptedConfig);
 		$decryptedOtep = $aes->decryptString($encryptedOtep);
 
 		// Remove the null padding added during encryption
@@ -1003,7 +1098,7 @@ class UsersModelUser extends JModelAdmin
 		{
 			$decryptedConfig = json_encode($otpConfig->config);
 			$decryptedOtep = json_encode($otpConfig->otep);
-			$updates->otpKey = $otpConfig->method . ':' . $aes->encryptString($decryptedConfig);
+			$updates->otpKey = $otpConfig->method . ':' . $decryptedConfig;
 			$updates->otep = $aes->encryptString($decryptedOtep);
 		}
 
@@ -1164,8 +1259,8 @@ class UsersModelUser extends JModelAdmin
 				$warnMessage = $options['warn_irq_msg'];
 			}
 
-			// Warn the user if he's using a secret code but he has not
-			// enabled two factor auth in his account.
+			// Warn the user if they are using a secret code but they have not
+			// enabled two factor auth in their account.
 			if (!empty($secretkey) && $warn)
 			{
 				try
@@ -1187,12 +1282,6 @@ class UsersModelUser extends JModelAdmin
 		$credentials = array(
 			'secretkey' => $secretkey,
 		);
-
-		// Load the Joomla! RAD layer
-		if (!defined('FOF_INCLUDED'))
-		{
-			include_once JPATH_LIBRARIES . '/fof/include.php';
-		}
 
 		// Try to validate the OTP
 		FOFPlatform::getInstance()->importPlugin('twofactorauth');
@@ -1257,7 +1346,7 @@ class UsersModelUser extends JModelAdmin
 			{
 				/**
 				 * Two factor authentication enabled and no OTEPs defined. The
-				 * user has used them all up. Therefore anything he enters is
+				 * user has used them all up. Therefore anything they enter is
 				 * an invalid OTEP.
 				 */
 				return false;
