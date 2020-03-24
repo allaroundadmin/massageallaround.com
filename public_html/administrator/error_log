@@ -14,3 +14,5 @@
 [12-Feb-2020 23:48:30 UTC] PHP Warning:  mysqli_error() expects parameter 1 to be mysqli, boolean given in /home/allaroundadmin/public_html/libraries/joomla/database/driver/mysqli.php on line 1001
 [02-Mar-2020 05:13:40 UTC] PHP Warning:  mysqli_errno() expects parameter 1 to be mysqli, boolean given in /home/allaroundadmin/public_html/libraries/joomla/database/driver/mysqli.php on line 987
 [02-Mar-2020 05:13:44 UTC] PHP Warning:  mysqli_error() expects parameter 1 to be mysqli, boolean given in /home/allaroundadmin/public_html/libraries/joomla/database/driver/mysqli.php on line 1001
+[24-Mar-2020 13:50:13 UTC] PHP Strict Standards:  Only variables should be assigned by reference in /home/allaroundadmin/public_html/plugins/system/icemegamenu/icemegamenu/libs/element/icemodules.php on line 31
+[24-Mar-2020 13:50:13 UTC] PHP Strict Standards:  Only variables should be assigned by reference in /home/allaroundadmin/public_html/plugins/system/icemegamenu/icemegamenu/libs/element/icepositions.php on line 44
